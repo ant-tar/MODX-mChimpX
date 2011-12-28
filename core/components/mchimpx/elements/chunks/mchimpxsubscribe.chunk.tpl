@@ -4,8 +4,8 @@
   &validate=`nospam:blank,firstname:required,lastname:required,email:email:required`
   &successMessage=`You're now subscribed to the mailinglist!`
   
-  &mcApiKey=`0cf375b985c6d135d89baab4e6fb0b21-us2`
-  &mcListId=`9fa7f3c6a1`
+  &mcApiKey=`--YOUR-API-KEY-HERE--`
+  &mcListId=`--YOUR-LIST-ID-HERE--`
   &mcMergeTags=`FNAME:firstname,LNAME:lastname,FULLNAME:firstname:lastname`
   &mcSendWelcome=`0`
 ]]
