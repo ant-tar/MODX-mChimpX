@@ -26,6 +26,10 @@
  * @package mchimpx
  * @author Bert Oost at OostDesign.nl <bert@oostdesign.nl>
  */
+/* @var array $scriptProperties
+ * @var modX $modx
+ * @var fiHooks $hook
+ */ 
 
 $apikey = $modx->getOption('mcApiKey', $scriptProperties, false);
 $listid = $modx->getOption('mcListId', $scriptProperties, false);
