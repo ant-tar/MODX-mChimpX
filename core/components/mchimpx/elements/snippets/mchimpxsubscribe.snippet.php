@@ -17,125 +17,212 @@
  * mChimpX; if not, write to the Free Software Foundation, Inc., 59 Temple Place,
  * Suite 330, Boston, MA 02111-1307 USA
  *
- * @package mchimpx
- */
-/**
  * mChimpXSubscribe - Subscribe users to the Mailchimp mailing list
  * USE IT AS FORMIT HOOK!
  *
  * @package mchimpx
  * @author Bert Oost at OostDesign.nl <bert@oostdesign.nl>
+ * @author Oleg Pryadko <oleg@websitezen.com> - simplify, fixes, & update for Mailchimp API v2.0
+ *
+ * &mcGroupings Format: comma-separated list of: <grouping_id_or_name>:<group_names_separated_by_colons>
+ *   -> Example using numeric grouping id: &mcGroupings=`1234:GroupName1:GroupName2, 2222:GroupName2,GroupName3`
+ * &mcGroupingFields Format: comma-separated list of: <field_name>:<grouping_id_or_name>:<group_names_separated_by_colons>
+ *   -> The <field_name> can be any FormIt with any value; the groups are added as long as the field value is not empty.
+ *   -> Example: &mcGroupingFields=`option_1:Grouping:Group1:Group2, option2:Grouping2:Group1:Group2`
+ *
+ * Example:
+ *      &mcApiKey=`0cda888888800000000-us7`
+ *      &mcListId=`21234523456b`
+ *      &mcMergeTags=`FNAME:firstname,LNAME:lastname,FULLNAME:firstname:lastname`
+ *      &mcGroupings=`<grouping_id>:<group>,<grouping_id>:<group>`
+ *      &mcGroupingFields=`option_group1:1234:Group1,option_group2:Grouping2:Group2`
+ *
+ * @var array $scriptProperties
+ * @var modX $modx
+ * @var fiHooks $hook
+ * @return bool
  */
-
-$apikey = $modx->getOption('mcApiKey', $scriptProperties, false);
-$listid = $modx->getOption('mcListId', $scriptProperties, false);
-$emailField = $modx->getOption('mcEmailField', $scriptProperties, 'email');
-$mergeTags = $modx->getOption('mcMergeTags', $scriptProperties, 'FNAME:firstname,LNAME:lastname,FULLNAME:firstname:lastname');
-
-// subscribe options
-$emailType = $modx->getOption('mcEmailType', $scriptProperties, 'html');
-$doubleOptin = (boolean) $modx->getOption('mcDoubleOptin', $scriptProperties, 1);
-$updateExisting = (boolean) $modx->getOption('mcUpdateExisting', $scriptProperties, 0);
-$replaceInterests = (boolean) $modx->getOption('mcReplaceInterests', $scriptProperties, 1);
-$sendWelcome = (boolean) $modx->getOption('mcSendWelcome', $scriptProperties, 1);
-
-// error reporting options
-$debug = (boolean) $modx->getOption('mcDebug', $scriptProperties, 0);
-$errorApiKey = (boolean) $modx->getOption('mcFailOnApiKey', $scriptProperties, 0);
-$errorListNotExists = (boolean) $modx->getOption('mcFailOnListNotExists', $scriptProperties, 0);
-$errorAlreadySubscribed = (boolean) $modx->getOption('mcFailOnAlreadySubscribed', $scriptProperties, 0);
-$errorNotSubscribed = (boolean) $modx->getOption('mcFailOnNotSubscribed', $scriptProperties, 0);
-$errorMissingReq = (boolean) $modx->getOption('mcFailOnMissingRequired', $scriptProperties, 0);
-
-// get form values
-$values = $hook->getValues();
-
-// load lexicons
-$modx->lexicon->load('mchimpx:default');
-
-if(empty($apikey)) {
-  $hook->addError('', $modx->lexicon('mchimpx.error.noapi'));
-  return false;
+if (function_exists('parse_mchimpx')) {
+    return parse_mchimpx($modx, $hook, $scriptProperties);
 }
-if(empty($listid)) {
-  $hook->addError('', $modx->lexicon('mchimpx.error.nolistid'));
-  return false;
-}
-if(empty($emailField) || !isset($values[$emailField]) || empty($values[$emailField])) {
-  $hook->addError('', $modx->lexicon('mchimpx.error.noemail'));
-  return false;
-}
-if(empty($mergeTags) || !stripos($mergeTags, ':')) {
-  $hook->addError('', $modx->lexicon('mchimpx.error.nomergefields'));
-  return false;
-}
+function parse_mchimpx(modX $modx, fiHooks $hook, array $scriptProperties) {
 
-// Secure page?
-$secure = false;
-if(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') {
-  $secure = true;
-}
+    $apikey = $modx->getOption('mcApiKey', $scriptProperties, false);
+    $listid = $modx->getOption('mcListId', $scriptProperties, false);
+    $emailField = $modx->getOption('mcEmailField', $scriptProperties, 'email');
+    $mergeTags = $modx->getOption('mcMergeTags', $scriptProperties, 'FNAME:firstname,LNAME:lastname,FULLNAME:firstname:lastname');
+    $mcGroupings = $modx->getOption('mcGroupings', $scriptProperties, '');  #
+    $mcGroupingFields = $modx->getOption('mcGroupingFields', $scriptProperties, '');
 
-// load Mailchimp API
-try {
-  $modx->loadClass('MCAPI', $modx->getOption('mchimpx.core_path',null,$modx->getOption('core_path').'components/mchimpx/').'model/', true, true);
-  $mc = new MCAPI($apikey, $secure);
-  
-  // find out the merge values
-  $mergeValues = array();
-  $parsefields = explode(',', trim($mergeTags));
-  foreach($parsefields as $field) {
-    $fields = explode(':', $field);
-    $keyField = array_shift($fields);
-    $mergeValues[$keyField] = '';
-    foreach($fields as $index => $submitfield) {
-      if(isset($values[$submitfield])) {
-	$mergeValues[$keyField] .= (($index > 0) ? ' ' : '').$values[$submitfield];
-      }
+    // subscribe options
+    $emailType = $modx->getOption('mcEmailType', $scriptProperties, 'html');
+    $doubleOptin = (boolean) $modx->getOption('mcDoubleOptin', $scriptProperties, 1);
+    $updateExisting = (boolean) $modx->getOption('mcUpdateExisting', $scriptProperties, 0);
+    $replaceInterests = (boolean) $modx->getOption('mcReplaceInterests', $scriptProperties, 1);
+    $sendWelcome = (boolean) $modx->getOption('mcSendWelcome', $scriptProperties, 1);
+
+    // error reporting options
+    $log_errors = (boolean)$modx->getOption('mcLogErrors', $scriptProperties, 1);
+    $display_errors = (boolean)$modx->getOption('mcShowErrors', $scriptProperties, 0);
+    $generic_error_msg = $modx->getOption('mcGenericError', $scriptProperties, 'System Error');
+
+    // get form values
+    $values = $hook->getValues();
+    $email = $values[$emailField];
+
+    // load lexicons
+    $modx->lexicon->load('mchimpx:default');
+
+    $ERROR_KEY = 'error_message';
+    if (empty($apikey)) {
+        $hook->addError($ERROR_KEY, $modx->lexicon('mchimpx.error.noapi'));
+        return false;
     }
-  }
-  
-  // subscribe
-  $success = $mc->listSubscribe($listid, $values[$emailField], $mergeValues, $emailType, $doubleOptin, $updateExisting, $replaceInterests, $sendWelcome);
-  if(!$success) {
-    
-    switch($mc->errorCode) {
-      case '104': // Invalid_ApiKey
-        if($errorApiKey) { $hook->addError('', $modx->lexicon('mchimpx.error.invalidapikey')); }
-      break;
-      case '200': // List_DoesNotExist
-        if($errorListNotExists) { $hook->addError('', $modx->lexicon('mchimpx.error.listnotexists')); }
-      break;
-      case '214': // List_AlreadySubscribed
-      case '230': // Email_AlreadySubscribed
-        if($errorAlreadySubscribed) { $hook->addError('', $modx->lexicon('mchimpx.error.alreadysubscribed')); }
-      break;
-      case '215': // List_NotSubscribed
-      case '233': // Email_NotSubscribed
-        if($errorNotSubscribed) { $hook->addError('', $modx->lexicon('mchimpx.error.notsubscribed')); }
-      break;
-      case '250': // List_MergeFieldRequired
-        if($errorMissingReq) { $hook->addError('', $modx->lexicon('mchimpx.error.missingrequired')); }
-      break;
+    if (empty($listid)) {
+        $hook->addError($ERROR_KEY, $modx->lexicon('mchimpx.error.nolistid'));
+        return false;
     }
-    
-    if($debug) {
-      $modx->log(modX::LOG_LEVEL_ERROR, '[mChimpX] ERROR: '.$mc->errorMessage);
+    if (empty($emailField) || !isset($values[$emailField]) || empty($values[$emailField])) {
+        $hook->addError($ERROR_KEY, $modx->lexicon('mchimpx.error.noemail'));
+        return false;
     }
-    
-    return false;
-  }
-  
-  return true;
-}
-catch(Exception $e) {
-  
-  if($debug) {
-    $modx->log(modX::LOG_LEVEL_ERROR, '[mChimpX] ERROR: '.$e->getMessage());
-  }
-  
-  $hook->addError('', $modx->lexicon('mchimpx.error.unknown'));
-  return false;
-}
+    if (empty($mergeTags) || !stripos($mergeTags, ':')) {
+        $hook->addError($ERROR_KEY, $modx->lexicon('mchimpx.error.nomergefields'));
+        return false;
+    }
 
-?>
+    // Secure page?
+    $secure = false;
+    if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') {
+        $secure = true;
+    }
+
+    // load Mailchimp API
+    try {
+
+        // find out the merge values
+        $mergeValues = array();
+        $parsefields = explode(',', trim($mergeTags));
+        foreach ($parsefields as $field) {
+            $fields = explode(':', $field);
+            $keyField = trim(array_shift($fields));
+            foreach ($fields as $index => $submitfield) {
+                if (!isset($values[$submitfield])) {
+                    continue;
+                }
+                if (!isset($mergeValues[$keyField])) {
+                    $mergeValues[$keyField] = '';
+                }
+                $mergeValues[$keyField] .= (($index > 0) ? ' ' : '') . $values[$submitfield];
+            }
+        }
+
+        $_groupings = array();
+
+        // parse $mcGroupingFields
+        foreach(explode(',', $mcGroupingFields) as $field) {
+            # e.g. <fieldname>:<grouping>:<group>, <fieldname2>:<grouping>:<group>
+            $parts = explode(':', $field);
+            $field_name = trim(array_shift($parts));
+            $grouping_id = trim(array_shift($parts));
+            $groups = $parts;
+            if (!($modx->getOption($field_name, $values))) {
+                continue;
+            }
+            if (array_key_exists($grouping_id, $_groupings)) {
+                $_groupings[$grouping_id] = array_merge($_groupings[$grouping_id], $groups);
+            } else {
+                $_groupings[$grouping_id] = $groups;
+            }
+        }
+
+        // parse $mcGroupings
+        foreach(explode(',', $mcGroupings) as $field) {
+            # e.g. <fieldname>:<grouping>:<group>
+            $parts = explode(':', $field);
+            $grouping_id = trim(array_shift($parts));
+            $groups = $parts;
+            if (array_key_exists($grouping_id, $_groupings)) {
+                $_groupings[$grouping_id] = array_merge($_groupings[$grouping_id], $groups);
+            } else {
+                $_groupings[$grouping_id] = $groups;
+            }
+        }
+
+        // transform groupings to mergevalues
+        $mergeValues['groupings'] = array();
+        foreach($_groupings as $id=> $groups) {
+            $grp = array();
+            if (is_numeric($id)) {
+                $grp['id'] = (int) $id;
+            } else {
+                $grp['name'] = $id;
+            }
+            foreach($groups as $i=> $grp_id) {
+                if (is_numeric($grp_id)) {
+                    $groups[$i] = $grp_id;
+                } else {
+                    $groups[$i] = $grp_id;
+                }
+            }
+            $grp['groups'] = array_values(array_unique($groups));
+            $mergeValues['groupings'][] = $grp;
+        }
+
+
+
+        $modx->loadClass('mailchimpx', $modx->getOption('mchimpx.core_path', null, $modx->getOption('core_path') . 'components/mchimpx/') . 'model/', true, true);
+        $mc = new MailchimpX($modx, $apikey, $secure);
+
+//        $groupings = $mc->lists->interestGroupings($listid);
+//        var_dump($groupings);
+//        var_dump($mergeValues);
+//        die();
+
+        // subscribe
+        $modx->log(modx::LOG_LEVEL_INFO, '[mChimpX] SEND: '.print_r($mergeValues, 1));
+        try {
+            $result = $mc->lists->subscribe(
+                $listid,
+                array('email'=> $email),
+                $mergeValues,
+                $emailType,
+                $doubleOptin,
+                $updateExisting,
+                $replaceInterests,
+                $sendWelcome
+            );
+        } catch (Mailchimp_List_AlreadySubscribed $e) {
+            $hook->addError($ERROR_KEY, 'Error: you are already subscribed to this list!');
+            return false;
+        } catch (Mailchimp_Error $e) {
+            $error_type = $mc->getHumanErrorType($e);
+            $error_msg = $e->getMessage();
+            $error_code = $e->getCode();
+            $error = '[MailChimp Error! Code: ' . $error_code . '. Type: ' . $error_type . '. Message: ' . $error_msg;
+            if ($log_errors) $modx->log(modX::LOG_LEVEL_ERROR, $error);
+            $hook->addError($ERROR_KEY, $display_errors ? $error : $generic_error_msg);
+            return false;
+        }
+
+//        print_r($result);
+//        print_r($mc->lists->memberInfo($listid, array(array('email'=> $email))));
+//        die();
+
+        if ($modx->getOption('email', $result) != $email) {
+            $error = sprintf('[mChimpX] ERROR: unexpected result: %s', print_r($result, 1));
+            if ($log_errors) $modx->log(modX::LOG_LEVEL_ERROR, $error);
+            $hook->addError($ERROR_KEY, $display_errors ? $error : $generic_error_msg);
+            return false;
+        }
+        return true;
+    } catch (Exception $e) {
+        $error = sprintf('Exception processing mchimpxsubscribe snippet: %s', $e->getMessage());
+        if ($log_errors) $modx->log(modX::LOG_LEVEL_ERROR, $error);
+        $hook->addError($ERROR_KEY, $display_errors ? $error : $generic_error_msg);
+
+        $hook->addError($ERROR_KEY, $modx->lexicon('mchimpx.error.unknown'));
+        return false;
+    }
+}
+return parse_mchimpx($modx, $hook, $scriptProperties);
