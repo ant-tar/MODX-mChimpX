@@ -104,8 +104,8 @@ function parse_mchimpx(modX $modx, fiHooks $hook, array $scriptProperties) {
         $mergeValues = array();
         $parsefields = explode(',', trim($mergeTags));
         foreach ($parsefields as $field) {
-            $fields = explode(':', $field);
-            $keyField = trim(array_shift($fields));
+            $fields = array_map('trim', explode(':', $field));
+            $keyField = array_shift($fields);
             foreach ($fields as $index => $submitfield) {
                 if (!isset($values[$submitfield])) {
                     continue;
@@ -122,12 +122,16 @@ function parse_mchimpx(modX $modx, fiHooks $hook, array $scriptProperties) {
         // parse $mcGroupingFields
         foreach(explode(',', $mcGroupingFields) as $field) {
             # e.g. <fieldname>:<grouping>:<group>, <fieldname2>:<grouping>:<group>
-            $parts = explode(':', $field);
-            $field_name = trim(array_shift($parts));
-            $grouping_id = trim(array_shift($parts));
+            $parts = array_map('trim', explode(':', $field));
+            $field_name = array_shift($parts);
+            $grouping_id = array_shift($parts);
+            if (empty($grouping_id)) { continue; }
             $groups = $parts;
-            if (!($modx->getOption($field_name, $values))) {
-                continue;
+            $field_value = $modx->getOption($field_name, $values);
+            // if no groups set, use checkbox option values for that
+            if (!$groups) {
+                $groups = is_array($field_value) ? $field_value :  explode(',', $field_value);
+                $groups = array_map('trim', $groups);
             }
             if (array_key_exists($grouping_id, $_groupings)) {
                 $_groupings[$grouping_id] = array_merge($_groupings[$grouping_id], $groups);
@@ -141,6 +145,7 @@ function parse_mchimpx(modX $modx, fiHooks $hook, array $scriptProperties) {
             # e.g. <fieldname>:<grouping>:<group>
             $parts = explode(':', $field);
             $grouping_id = trim(array_shift($parts));
+            if (empty($grouping_id)) { continue; }
             $groups = $parts;
             if (array_key_exists($grouping_id, $_groupings)) {
                 $_groupings[$grouping_id] = array_merge($_groupings[$grouping_id], $groups);
@@ -168,8 +173,6 @@ function parse_mchimpx(modX $modx, fiHooks $hook, array $scriptProperties) {
             $grp['groups'] = array_values(array_unique($groups));
             $mergeValues['groupings'][] = $grp;
         }
-
-
 
         $modx->loadClass('mailchimpx', $modx->getOption('mchimpx.core_path', null, $modx->getOption('core_path') . 'components/mchimpx/') . 'model/', true, true);
         $mc = new MailchimpX($modx, $apikey, $secure);
@@ -204,10 +207,6 @@ function parse_mchimpx(modX $modx, fiHooks $hook, array $scriptProperties) {
             $hook->addError($ERROR_KEY, $display_errors ? $error : $generic_error_msg);
             return false;
         }
-
-//        print_r($result);
-//        print_r($mc->lists->memberInfo($listid, array(array('email'=> $email))));
-//        die();
 
         if ($modx->getOption('email', $result) != $email) {
             $error = sprintf('[mChimpX] ERROR: unexpected result: %s', print_r($result, 1));
