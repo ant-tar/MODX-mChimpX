@@ -3,6 +3,8 @@ Component: mChimpX
 --------------------
 Author: Bert Oost at OostDesign.nl <bert@oostdesign.nl>
 
+Modified by Oleg Pryadko <oleg@websitezen.com>
+
 A FormIt hook provided to subscribe an emailaddress to your Mailchimp list. Fully confiurable.
 
 Possible options which can be added to the FormIt tag:

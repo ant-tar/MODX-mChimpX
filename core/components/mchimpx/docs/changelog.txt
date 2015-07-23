@@ -1,5 +1,9 @@
 Changelog for mChimpX.
 
+mChimpX 2.0.0-alpha
+====================================
+- Modifications for MailChimpAPI 2.0 & various fixes
+
 mChimpX 1.0.0-rc1
 ====================================
 - Initial release
