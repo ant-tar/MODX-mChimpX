@@ -49,12 +49,12 @@ if (!function_exists('parse_mchimpx')) {
         $apikey = $modx->getOption('mcApiKey', $scriptProperties, false);
         $listid = $modx->getOption('mcListId', $scriptProperties, false);
         $emailField = $modx->getOption('mcEmailField', $scriptProperties, 'email');
+        $emailTypeField = $modx->getOption('mcEmailTypeField', $scriptProperties, 'email_type');
         $mergeTags = $modx->getOption('mcMergeTags', $scriptProperties, 'FNAME:firstname,LNAME:lastname,FULLNAME:firstname:lastname');
         $mcGroupings = $modx->getOption('mcGroupings', $scriptProperties, '');  #
         $mcGroupingFields = $modx->getOption('mcGroupingFields', $scriptProperties, '');
 
         // subscribe options
-        $emailType = $modx->getOption('mcEmailType', $scriptProperties, 'html');
         $doubleOptin = (boolean)$modx->getOption('mcDoubleOptin', $scriptProperties, 1);
         $updateExisting = (boolean)$modx->getOption('mcUpdateExisting', $scriptProperties, 0);
         $replaceInterests = (boolean)$modx->getOption('mcReplaceInterests', $scriptProperties, 1);
@@ -99,6 +99,9 @@ if (!function_exists('parse_mchimpx')) {
         // load Mailchimp API
         try {
 
+            $emailType = $emailTypeField ? $modx->getOption($emailTypeField, $values, 'html') : 'html';
+            $emailType = in_array($emailType, array('html', 'text')) ? $emailType : 'html';
+
             // find out the merge values
             $mergeValues = array();
             $parsefields = explode(',', trim($mergeTags));
@@ -133,6 +136,9 @@ if (!function_exists('parse_mchimpx')) {
                 if (!$groups) {
                     $groups = is_array($field_value) ? $field_value : explode(',', $field_value);
                     $groups = array_map('trim', $groups);
+                // otherwise, use the groups set if the field_value
+                } elseif (!$field_value) {
+                    continue;
                 }
                 if (array_key_exists($grouping_id, $_groupings)) {
                     $_groupings[$grouping_id] = array_merge($_groupings[$grouping_id], $groups);
