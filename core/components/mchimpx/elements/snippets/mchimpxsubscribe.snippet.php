@@ -44,7 +44,6 @@
  */
 if (!function_exists('parse_mchimpx')) {
     function parse_mchimpx(modX $modx, fiHooks $hook, array $scriptProperties) {
-
         $debug = $modx->getOption('mcDebugPh', $scriptProperties, false);
         $apikey = $modx->getOption('mcApiKey', $scriptProperties, false);
         $listid = $modx->getOption('mcListId', $scriptProperties, false);
@@ -63,7 +62,7 @@ if (!function_exists('parse_mchimpx')) {
         // error reporting options
         $log_errors = (boolean)$modx->getOption('mcLogErrors', $scriptProperties, 1);
         $display_errors = (boolean)$modx->getOption('mcShowErrors', $scriptProperties, 0);
-        $generic_error_msg = $modx->getOption('mcGenericError', $scriptProperties, 'System Error');
+        $ERROR_KEY = (boolean)$modx->getOption('mcErrorField', $scriptProperties, 'error_message');
 
         // get form values
         $values = $hook->getValues();
@@ -72,7 +71,6 @@ if (!function_exists('parse_mchimpx')) {
         // load lexicons
         $modx->lexicon->load('mchimpx:default');
 
-        $ERROR_KEY = 'error_message';
         if (empty($apikey)) {
             $hook->addError($ERROR_KEY, $modx->lexicon('mchimpx.error.noapi'));
             return false;
@@ -215,7 +213,7 @@ if (!function_exists('parse_mchimpx')) {
                     $sendWelcome
                 );
             } catch (Mailchimp_List_AlreadySubscribed $e) {
-                $hook->addError($ERROR_KEY, 'Error: you are already subscribed to this list!');
+                $hook->addError($ERROR_KEY, $modx->lexicon('mchimpx.error.already_subscribed'));
                 return false;
             } catch (Mailchimp_Error $e) {
                 $error_type = $mc->getHumanErrorType($e);
@@ -223,7 +221,7 @@ if (!function_exists('parse_mchimpx')) {
                 $error_code = $e->getCode();
                 $error = '[MailChimp Error! Code: ' . $error_code . '. Type: ' . $error_type . '. Message: ' . $error_msg;
                 if ($log_errors) $modx->log(modX::LOG_LEVEL_ERROR, $error);
-                $hook->addError($ERROR_KEY, $display_errors ? $error : $generic_error_msg);
+                $hook->addError($ERROR_KEY, $display_errors ? $error : $modx->lexicon('mchimpx.error.mailchimp_error'));
                 return false;
             }
             if ($debug) {
@@ -231,18 +229,16 @@ if (!function_exists('parse_mchimpx')) {
             }
 
             if ($modx->getOption('email', $result) != $email) {
-                $error = sprintf('[mChimpX] ERROR: unexpected result: %s', print_r($result, 1));
+                $error = sprintf('[mChimpX] ERROR: mismatched result email: %s', print_r($result, 1));
                 if ($log_errors) $modx->log(modX::LOG_LEVEL_ERROR, $error);
-                $hook->addError($ERROR_KEY, $display_errors ? $error : $generic_error_msg);
+                $hook->addError($ERROR_KEY, $display_errors ? $error : $modx->lexicon('mchimpx.error.system_error'));
                 return false;
             }
             return true;
         } catch (Exception $e) {
             $error = sprintf('Exception processing mchimpxsubscribe snippet: %s', $e->getMessage());
             if ($log_errors) $modx->log(modX::LOG_LEVEL_ERROR, $error);
-            $hook->addError($ERROR_KEY, $display_errors ? $error : $generic_error_msg);
-
-            $hook->addError($ERROR_KEY, $modx->lexicon('mchimpx.error.unknown'));
+            $hook->addError($ERROR_KEY, $display_errors ? $error : $modx->lexicon('mchimpx.error.system_error'));
             return false;
         }
     }

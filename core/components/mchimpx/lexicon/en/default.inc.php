@@ -28,13 +28,19 @@
 
 $_lang['mchimpx'] = "Mailchimp for MODx";
 
-$_lang['mchimpx.error.unknown'] = "Some unknown Mailchimp error occurred!";
+// technical errors
 $_lang['mchimpx.error.noapi'] = "No Mailchimp API Key set!";
 $_lang['mchimpx.error.nolistid'] = "No Mailchimp list id set!";
 $_lang['mchimpx.error.noemail'] = "No Mailchimp email field set!";
 $_lang['mchimpx.error.nomergefields'] = "No (or misconfigured) Mailchimp merge fields set!";
 
-// Mailchimp errors
+// errors for customers
+$_lang['mchimpx.error.already_subscribed'] = 'Error: you are already subscribed to this list!';
+$_lang['mchimpx.error.mailchimp_error'] = 'An unexpected subscription error occurred. Please contact us if this error continues.';
+$_lang['mchimpx.error.system_error'] = 'System Error! Please try again later and contact us if this error continues.';
+
+// OLD mailchimp errors. TODO:
+$_lang['mchimpx.error.unknown'] = "Some unknown Mailchimp error occurred!";
 $_lang['mchimpx.error.invalidapikey'] = "Mailchimp API key not configured right!";
 $_lang['mchimpx.error.listnotexists'] = "Mailchimp listId not configured right!";
 $_lang['mchimpx.error.alreadysubscribed'] = "You're already subscribed yourself!";
