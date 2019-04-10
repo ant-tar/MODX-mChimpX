@@ -1,5 +1,9 @@
 Changelog for mChimpX.
 
+mChimpX 2.0.0-alpha
+====================================
+- Mailchimp API 2.0 support
+- French lexicon was added
 - Add ability to define API Key and List ID from the system settings instead of per formit call.
 
 mChimpX 1.0.0-rc1
