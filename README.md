@@ -12,9 +12,9 @@ A FormIt hook provided to subscribe an emailaddress to your Mailchimp list. Full
 Possible options which can be added to the FormIt tag:
 ---------------------------------
 - mcApiKey
-  The Mailchimp API Key
+  The Mailchimp API Key (optional, can be also specified via system setting mcApiKey)
 - mcListId
-  The Mailchimp list id to subscribe to
+  The Mailchimp list id to subscribe to (optional, can be also specified via system setting mcListId)
 - mcEmailField
   The name of the email field in the form. defaults to 'email'
 - mcMergeTags
@@ -58,4 +58,4 @@ General: true eq. 1 / false eq. 0
   True or false to return 'missing required' error to the front-end form. defaults to false.
 
 Official Documentation:
-http://rtfm.modx.com/display/ADDON/mChimpX
+https://docs.modx.com/extras/revo/mchimpx
