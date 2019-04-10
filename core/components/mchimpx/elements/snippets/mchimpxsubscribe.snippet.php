@@ -26,9 +26,13 @@
  * @package mchimpx
  * @author Bert Oost at OostDesign.nl <bert@oostdesign.nl>
  */
+/* @var array $scriptProperties
+ * @var modX $modx
+ * @var fiHooks $hook
+ */ 
 
-$apikey = $modx->getOption('mcApiKey', $scriptProperties, false);
-$listid = $modx->getOption('mcListId', $scriptProperties, false);
+$apikey = $modx->getOption('mcApiKey', $scriptProperties, $modx->getOption('mchimpx.mcApiKey',null,false,true));
+$listid = $modx->getOption('mcListId', $scriptProperties, $modx->getOption('mchimpx.mcListId',null,false,true));
 $emailField = $modx->getOption('mcEmailField', $scriptProperties, 'email');
 $mergeTags = $modx->getOption('mcMergeTags', $scriptProperties, 'FNAME:firstname,LNAME:lastname,FULLNAME:firstname:lastname');
 

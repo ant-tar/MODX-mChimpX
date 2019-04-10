@@ -1,5 +1,7 @@
 Changelog for mChimpX.
 
+- Add ability to define API Key and List ID from the system settings instead of per formit call.
+
 mChimpX 1.0.0-rc1
 ====================================
 - Initial release
