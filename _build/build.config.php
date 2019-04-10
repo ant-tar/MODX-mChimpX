@@ -25,5 +25,7 @@ define('MODX_CORE_URL', MODX_BASE_URL . 'core/');
 define('MODX_MANAGER_URL', MODX_BASE_URL . 'manager/');
 define('MODX_CONNECTORS_URL', MODX_BASE_URL . 'connectors/');
 define('MODX_ASSETS_URL', MODX_BASE_URL . 'assets/');
-
-?>
+/* define build options */
+define('BUILD_SETTING_UPDATE', true);
+define('BUILD_CHUNK_UPDATE', true);
+define('BUILD_SNIPPET_UPDATE', true);
