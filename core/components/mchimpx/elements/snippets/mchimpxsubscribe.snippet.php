@@ -23,12 +23,16 @@
  * @package mchimpx
  * @author Bert Oost at OostDesign.nl <bert@oostdesign.nl>
  * @author Oleg Pryadko <oleg@websitezen.com> - simplify, fixes, & update for Mailchimp API v2.0
+ * @author Anton Tarasov <contact@antontarasov.com> - Further maintenance & support
  *
  * &mcGroupings Format: comma-separated list of: <grouping_id_or_name>:<group_names_separated_by_colons>
  *   -> Example using numeric grouping id: &mcGroupings=`1234:GroupName1:GroupName2, 2222:GroupName2,GroupName3`
  * &mcGroupingFields Format: comma-separated list of: <field_name>:<grouping_id_or_name>:<group_names_separated_by_colons>
  *   -> The <field_name> can be any FormIt with any value; the groups are added as long as the field value is not empty.
  *   -> Example: &mcGroupingFields=`option_1:Grouping:Group1:Group2, option2:Grouping2:Group1:Group2`
+ *
+ * &mcApiKey and &mcListId can be replaced by appropriate system setting values: mcApiKey and mcListId, but are still here and can be used from
+ * backward compatibility point of view
  *
  * Example:
  *      &mcApiKey=`0cda888888800000000-us7`
@@ -45,8 +49,8 @@
 if (!function_exists('parse_mchimpx')) {
     function parse_mchimpx(modX $modx, fiHooks $hook, array $scriptProperties) {
         $debug = $modx->getOption('mcDebugPh', $scriptProperties, false);
-        $apikey = $modx->getOption('mcApiKey', $scriptProperties, false);
-        $listid = $modx->getOption('mcListId', $scriptProperties, false);
+        $apikey = $modx->getOption('mcApiKey', null, $modx->getOption('mcApiKey', $scriptProperties, false), true);
+        $listid = $modx->getOption('mcListId', null, $modx->getOption('mcListId', $scriptProperties, false), true);
         $emailField = $modx->getOption('mcEmailField', $scriptProperties, 'email');
         $emailTypeField = $modx->getOption('mcEmailTypeField', $scriptProperties, 'email_type');
         $mergeTags = $modx->getOption('mcMergeTags', $scriptProperties, 'FNAME:firstname,LNAME:lastname,FULLNAME:firstname:lastname');
