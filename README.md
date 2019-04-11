@@ -9,6 +9,8 @@ Author: Oleg Pryadko <oleg@websitezen.com> - Adapt for MailChimp API v.2
 
 Author: Anton Tarasov <contact@antontarasov.com> - Further maintenance & support
 
+_This extra stable works with Maichimp API 2.0 support (only 1.x versions support has been stopped), 3.0 version will be implemented soon._
+
 ## Example snippet call
 
 ```
