@@ -40,5 +40,5 @@ $_lang['mchimpx.error.listnotexists'] = "L’identifiant de la liste MailChimp n
 $_lang['mchimpx.error.alreadysubscribed'] = "Vous êtes déjà inscrit.";
 $_lang['mchimpx.error.notsubscribed'] = "Inscription impossible.";
 $_lang['mchimpx.error.missingrequired'] = "Tous les champs requis ne sont pas remplis.";
-
-?>
+$_lang['mchimpx.error.mailchimp_error'] = "MailChimp Erreur!";
+$_lang['mchimpx.error.system_error'] = "E-mail de résultat incompatible!";
