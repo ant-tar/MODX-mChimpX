@@ -31,8 +31,8 @@
 /* Set package info be sure to set all of these */
 define('PKG_NAME','mChimpX');
 define('PKG_NAME_LOWER', strtolower(PKG_NAME));
-define('PKG_VERSION','2.0.0');
-define('PKG_RELEASE','alpha');
+define('PKG_VERSION','2.1.0');
+define('PKG_RELEASE','pl');
 define('PKG_CATEGORY','mChimpX');
 
 /* set start time */
