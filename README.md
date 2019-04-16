@@ -1,5 +1,5 @@
 # mChimpX 
-![Reviews version](https://img.shields.io/badge/version-2.0.0-brightgreen.svg) ![MODX Extra by Bert Oost](https://img.shields.io/badge/extra%20by-bert.ooost-magenta.svg) ![MODX version requirements](https://img.shields.io/badge/modx%20version%20requirement-2.4%2B-blue.svg)
+![Reviews version](https://img.shields.io/badge/version-2.1.0-brightgreen.svg) ![MODX Extra by Bert Oost](https://img.shields.io/badge/extra%20by-bert.ooost-magenta.svg) ![MODX version requirements](https://img.shields.io/badge/modx%20version%20requirement-2.4%2B-blue.svg)
 
 A FormIt hook provided to subscribe an emailaddress to your Mailchimp list. Fully configurable.
 
