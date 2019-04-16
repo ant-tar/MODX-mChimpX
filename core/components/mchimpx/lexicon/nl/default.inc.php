@@ -40,5 +40,5 @@ $_lang['mchimpx.error.listnotexists'] = "Mailchimp listId is niet correct!";
 $_lang['mchimpx.error.alreadysubscribed'] = "Je hebt jezelf reeds ingeschreven!";
 $_lang['mchimpx.error.notsubscribed'] = "Mislukt jou in te schrijven!";
 $_lang['mchimpx.error.missingrequired'] = "Niet alle verplichte velden zijn gevuld!";
-
-?>
+$_lang['mchimpx.error.mailchimp_error'] = "MailChimp-fout!";
+$_lang['mchimpx.error.system_error'] = "Niet-overeenkomende resultaat-e-mail!";
