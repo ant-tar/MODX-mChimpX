@@ -41,3 +41,5 @@ $_lang['mchimpx.error.listnotexists'] = "ID аудитории/ списка Mai
 $_lang['mchimpx.error.alreadysubscribed'] = "Вы уже были подписаны самостоятельно!";
 $_lang['mchimpx.error.notsubscribed'] = "Подписка невозможно!";
 $_lang['mchimpx.error.missingrequired'] = "Не все обязательные поля заполнены!";
+$_lang['mchimpx.error.mailchimp_error'] = "Ошибка MailChimp!";
+$_lang['mchimpx.error.system_error'] = "Несоответствие email!";
