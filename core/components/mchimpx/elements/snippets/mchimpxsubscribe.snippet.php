@@ -188,11 +188,6 @@ if (!function_exists('parse_mchimpx')) {
             $modx->loadClass('mailchimpx', $modx->getOption('mchimpx.core_path', null, $modx->getOption('core_path') . 'components/mchimpx/') . 'model/', true, true);
             $mc = new MailchimpX($modx, $apikey, $secure);
 
-//        $groupings = $mc->lists->interestGroupings($listid);
-//        var_dump($groupings);
-//        var_dump($mergeValues);
-//        die();
-
             // subscribe
             $modx->log(modX::LOG_LEVEL_INFO, '[mChimpX] SEND: ' . print_r($mergeValues, 1));
             if ($debug) $modx->setPlaceholder('mChimpX.debug_send_'.$debug, $modx->toJSON(array(
@@ -217,7 +212,7 @@ if (!function_exists('parse_mchimpx')) {
                     $sendWelcome
                 );
             } catch (Mailchimp_List_AlreadySubscribed $e) {
-                $hook->addError($ERROR_KEY, $modx->lexicon('mchimpx.error.already_subscribed'));
+                $hook->addError($ERROR_KEY, $modx->lexicon('mchimpx.error.alreadysubscribed'));
                 return false;
             } catch (Mailchimp_Error $e) {
                 $error_type = $mc->getHumanErrorType($e);
