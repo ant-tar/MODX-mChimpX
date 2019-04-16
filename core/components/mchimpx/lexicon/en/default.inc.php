@@ -40,5 +40,6 @@ $_lang['mchimpx.error.listnotexists'] = "Mailchimp listId not configured right!"
 $_lang['mchimpx.error.alreadysubscribed'] = "You're already subscribed yourself!";
 $_lang['mchimpx.error.notsubscribed'] = "Failed to subscribe you!";
 $_lang['mchimpx.error.missingrequired'] = "Not all required fields are set!";
+$_lang['mchimpx.error.mailchimp_error'] = "MailChimp Error!";
+$_lang['mchimpx.error.system_error'] = "Mismatched result email!";
 
-?>
