@@ -1,5 +1,12 @@
 Changelog for mChimpX.
 
+
+mChimpX 2.1.0
+====================================
+- Italian lexicon was added by @friimaind
+- New Russian lexicon
+- Couple of new lexicon error message for all languages, appropriate fixes for snippet
+
 mChimpX 2.0.0-alpha
 ====================================
 - Mailchimp API 2.0 support
