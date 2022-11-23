@@ -92,12 +92,6 @@ if (!function_exists('parse_mchimpx')) {
             return false;
         }
 
-        // Secure page?
-        $secure = false;
-        if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') {
-            $secure = true;
-        }
-
         // load Mailchimp API
         try {
 
@@ -186,7 +180,7 @@ if (!function_exists('parse_mchimpx')) {
             }
 
             $modx->loadClass('mailchimpx', $modx->getOption('mchimpx.core_path', null, $modx->getOption('core_path') . 'components/mchimpx/') . 'model/', true, true);
-            $mc = new MailchimpX($modx, $apikey, $secure);
+            $mc = new MailchimpX($modx, $apikey);
 
             // subscribe
             $modx->log(modX::LOG_LEVEL_INFO, '[mChimpX] SEND: ' . print_r($mergeValues, 1));
